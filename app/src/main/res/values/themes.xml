@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main application theme -->
+    <style name="Theme.AksharaDeepaTutor" parent="android:Theme.Material.Light.NoActionBar">
+        <!--
+            To remove the system splash screen on Android 12+,
+            we set the window to be translucent. This prevents
+            the default icon from showing before our Compose
+            SplashScreen starts.
+        -->
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>
