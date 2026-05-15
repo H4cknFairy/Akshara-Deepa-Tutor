@@ -1,4 +1,7 @@
 # Akshara-Deepa Tutor 🎓
+<p align="center">
+  <img src="app/src/main/res/drawable/my_logo.jpg" width="150" height="150">
+</p>
 
 **Akshara-Deepa Tutor** is a modern, student-centric Android educational application designed to provide a personalized, offline learning experience. It combines structured study materials with intelligent progress tracking and interactive assessment tools.
 
@@ -81,7 +84,7 @@ This project goes beyond basic CRUD operations by implementing:
 
 | Dashboard (Radar Chart) | Timed Quiz | Subject Progress |
 | :---: | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/200x400?text=Radar+Chart) | ![Quiz](https://via.placeholder.com/200x400?text=Quiz+Timer) | ![Subject](https://via.placeholder.com/200x400?text=Subject+Detail) |
+| ![Dashboard](screenshots/dashboard.png) | ![Quiz](screenshots/quiz.png) | ![Subject](screenshots/subject.png) |
 
 ---
 *Developed as part of the Internship Project Submission.*
