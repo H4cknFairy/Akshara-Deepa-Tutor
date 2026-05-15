@@ -10,7 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.akshara_deepatutor.ui.navigation.Screen
-import com.example.akshara_deepatutor.ui.theme.*
 import com.example.akshara_deepatutor.ui.viewmodels.QuizViewModel
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,11 +37,11 @@ fun QuizScreen(
     navController: NavHostController, 
     chapterId: Int = -1,
     subjectName: String = "none",
-    windowWidthSizeClass: WindowWidthSizeClass
+    windowWidthSizeClass: WindowWidthSizeClass,
 ) {
     val context = LocalContext.current
     val viewModel: QuizViewModel = viewModel(
-        factory = QuizViewModel.provideFactory(context.applicationContext as Application)
+        factory = QuizViewModel.provideFactory(context.applicationContext as Application),
     )
 
     val questions by viewModel.questions.collectAsState()
@@ -57,11 +57,10 @@ fun QuizScreen(
         return
     }
 
-    var currentQuestionIndex by remember { mutableStateOf(0) }
-    var selectedAnswers by remember { mutableStateOf(MutableList(questions.size) { -1 }) }
-    var timeInSeconds by remember { mutableStateOf(300) } // 5 minutes
+    var currentQuestionIndex by remember { mutableIntStateOf(0) }
+    var selectedAnswers by remember { mutableStateOf(List(questions.size) { -1 }) }
+    var timeInSeconds by remember { mutableIntStateOf(300) } // 5 minutes
 
-    val currentQuestion = questions[currentQuestionIndex]
     val selectedOption = selectedAnswers[currentQuestionIndex]
 
     // Timer Logic
@@ -71,7 +70,7 @@ fun QuizScreen(
             timeInSeconds--
         }
         // Auto-finish quiz when time runs out
-        if (timeInSeconds == 0 && questions.isNotEmpty()) {
+        if ((timeInSeconds == 0) && questions.isNotEmpty()) {
             val score = selectedAnswers.indices.count { i -> 
                 selectedAnswers[i] == questions[i].correctAnswer 
             } * (100 / questions.size)
@@ -102,7 +101,7 @@ fun QuizScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -136,11 +135,11 @@ fun QuizScreen(
                     targetState = currentQuestionIndex,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            slideInHorizontally { it } + fadeIn() togetherWith
-                                    slideOutHorizontally { -it } + fadeOut()
+                            (slideInHorizontally { it } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { -it } + fadeOut())
                         } else {
-                            slideInHorizontally { -it } + fadeIn() togetherWith
-                                    slideOutHorizontally { it } + fadeOut()
+                            (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { it } + fadeOut())
                         }.using(SizeTransform(clip = false))
                     },
                     label = "QuestionTransition"
@@ -178,21 +177,20 @@ fun QuizScreen(
             // Bottom Navigation Section
             QuizNavigationButtons(
                 isFirst = currentQuestionIndex == 0,
-                isLast = currentQuestionIndex == questions.size - 1,
+                isLast = (currentQuestionIndex == (questions.size - 1)),
                 isOptionSelected = selectedOption != -1,
                 onPrevious = { if (currentQuestionIndex > 0) currentQuestionIndex-- },
                 onNext = { if (currentQuestionIndex < questions.size - 1) currentQuestionIndex++ },
-                onFinish = {
-                    if (questions.isNotEmpty()) {
-                        val score = selectedAnswers.indices.count { i -> 
-                            selectedAnswers[i] == questions[i].correctAnswer 
-                        } * (100 / questions.size)
-                        
-                        viewModel.finishQuiz(score, chapterId)
-                        navController.navigate(Screen.Result.createRoute(score))
-                    }
+            ) {
+                if (questions.isNotEmpty()) {
+                    val score = selectedAnswers.indices.count { i ->
+                        selectedAnswers[i] == questions[i].correctAnswer
+                    } * (100 / questions.size)
+
+                    viewModel.finishQuiz(score, chapterId)
+                    navController.navigate(Screen.Result.createRoute(score))
                 }
-            )
+            }
         }
     }
 }
@@ -204,8 +202,7 @@ fun OptionsList(options: List<String>, selectedOption: Int, onOptionSelected: (I
             OptionCard(
                 text = option,
                 isSelected = selectedOption == optIndex,
-                onClick = { onOptionSelected(optIndex) }
-            )
+            ) { onOptionSelected(optIndex) }
         }
     }
 }
@@ -214,7 +211,7 @@ fun OptionsList(options: List<String>, selectedOption: Int, onOptionSelected: (I
 fun TimerChip(seconds: Int) {
     val minutes = seconds / 60
     val secs = seconds % 60
-    val timerText = String.format("%02d:%02d", minutes, secs)
+    val timerText = String.format(Locale.getDefault(), "%02d:%02d", minutes, secs)
     
     Row(
         modifier = Modifier

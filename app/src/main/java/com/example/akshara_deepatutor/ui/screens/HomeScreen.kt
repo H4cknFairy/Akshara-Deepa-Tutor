@@ -24,12 +24,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,12 +62,12 @@ fun HomeScreen(
                                 .size(40.dp)
                                 .shadow(4.dp, CircleShape),
                             shape = CircleShape,
-                            color = Color.White
+                            color = Color.White,
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.my_logo),
                                 contentDescription = "Logo",
-                                modifier = Modifier.padding(4.dp)
+                                modifier = Modifier.padding(4.dp),
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -77,7 +75,7 @@ fun HomeScreen(
                             "Akshara-Deepa Tutor",
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 18.sp,
-                            color = BluePrimary
+                            color = BluePrimary,
                         )
                     }
                 },
@@ -145,12 +143,9 @@ fun HomeScreen(
 
                 // 2. Continue Learning Section
                 lastSession?.let { session ->
-                    ContinueLearningCard(
-                        session = session,
-                        onClick = {
-                            navController.navigate(Screen.Chapter.createRoute(session.subjectId, session.subjectName))
-                        }
-                    )
+                    ContinueLearningCard(session = session) {
+                        navController.navigate(Screen.Chapter.createRoute(session.subjectId, session.subjectName))
+                    }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
@@ -165,7 +160,9 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // 5. Single Big "All Subjects" Card
-                AllSubjectsCard { navController.navigate(Screen.Subject.route) }
+                AllSubjectsCard {
+                    navController.navigate(Screen.Subject.route)
+                }
 
                 Spacer(modifier = Modifier.height(40.dp))
                 

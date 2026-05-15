@@ -36,10 +36,7 @@ import androidx.navigation.NavHostController
 import com.example.akshara_deepatutor.ui.navigation.Screen
 import com.example.akshara_deepatutor.ui.theme.*
 import com.example.akshara_deepatutor.ui.viewmodels.HomeViewModel
-
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import kotlin.math.cos
@@ -162,7 +159,7 @@ fun DashboardScreen(
                     val lastScore = recentQuizzes.first().percentage
                     QuizPerformanceCard(
                         averageScore = avgScore,
-                        lastScore = lastScore
+                        lastScore = lastScore,
                     )
                 }
             }
@@ -230,7 +227,7 @@ fun WeakAreaCard(subject: HomeViewModel.WeakSubjectData) {
             .shadow(2.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDark) Color(0xFF3E2723) else Color(0xFFFFF5F5)
+            containerColor = if (isDark) Color(0xFF3E2723) else Color(0xFFFFF5F5),
         )
     ) {
         Row(
@@ -494,7 +491,7 @@ fun RadarChart(
     Canvas(modifier = Modifier.fillMaxSize()) {
         val center = center
         val radius = size.minDimension / 2
-        val angleStep = 2 * Math.PI / data.size
+        val angleStep = (2 * Math.PI) / (data.size)
 
         // 1. Draw Background Polygons (Web)
         for (i in 1..4) {

@@ -4,7 +4,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,7 +28,7 @@ import com.example.akshara_deepatutor.ui.theme.*
 
 @Composable
 fun ResultScreen(navController: NavHostController, score: Int) {
-    var animationPlayed by remember { mutableStateOf(false) }
+    var animationPlayed by remember { mutableStateOf(value = false) }
     
     // Performance logic
     val performance = when {
@@ -42,7 +40,8 @@ fun ResultScreen(navController: NavHostController, score: Int) {
 
     val animatedScore by animateFloatAsState(
         targetValue = if (animationPlayed) score.toFloat() / 100 else 0f,
-        animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
+        animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+        label = "animatedScore",
     )
 
     LaunchedEffect(Unit) {
@@ -55,7 +54,7 @@ fun ResultScreen(navController: NavHostController, score: Int) {
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -64,7 +63,7 @@ fun ResultScreen(navController: NavHostController, score: Int) {
             text = "Quiz Completed 🎉",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -124,14 +123,14 @@ fun ResultScreen(navController: NavHostController, score: Int) {
             DetailCard(
                 modifier = Modifier.weight(1f),
                 title = "Correct",
-                value = "${(score * 5 / 100)}", // Assuming 5 questions total
+                value = ((score * 5) / 100).toString(), // Assuming 5 questions total
                 icon = Icons.Default.CheckCircle,
                 iconColor = SuccessGreen
             )
             DetailCard(
                 modifier = Modifier.weight(1f),
                 title = "Wrong",
-                value = "${5 - (score * 5 / 100)}",
+                value = (5 - (score * 5 / 100)).toString(),
                 icon = Icons.Default.Cancel,
                 iconColor = Color(0xFFD32F2F)
             )
@@ -150,7 +149,7 @@ fun ResultScreen(navController: NavHostController, score: Int) {
             DetailCard(
                 modifier = Modifier.weight(1f),
                 title = "Points",
-                value = "${score * 10}",
+                value = (score * 10).toString(),
                 icon = Icons.Default.EmojiEvents,
                 iconColor = Color(0xFFFFA000)
             )
