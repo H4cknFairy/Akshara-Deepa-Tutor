@@ -63,7 +63,7 @@ app/src/main/java/com/example/akshara_deepatutor/
 
 1. **Clone the Repo**:
    ```bash
-   git clone https://github.com/H4cknFairy/Akshara-DeepaTutor.git
+   git clone https://github.com/H4cknFairy/Akshara-Deepa-Tutor.git
    ```
 2. **Open in Android Studio**: Use **Android Studio Ladybug (2024.2.1)** or newer.
 3. **Build**: Let Gradle sync and download dependencies.
