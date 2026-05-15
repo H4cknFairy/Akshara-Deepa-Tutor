@@ -156,6 +156,32 @@ fun ResultScreen(navController: NavHostController, score: Int) {
             )
         }
 
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Review Section Header
+        Text(
+            text = "Mastery Review",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.Start)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Mastery Review Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                ReviewItem("Conceptual Understanding", if (score >= 80) "Excellent" else "Good", SuccessGreen)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                ReviewItem("Retention Speed", "Fast", BluePrimary)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                ReviewItem("Subject Accuracy", "$score%", if (score >= 60) SuccessGreen else Color(0xFFD32F2F))
+            }
+        }
+
         Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -195,6 +221,18 @@ fun ResultScreen(navController: NavHostController, score: Int) {
         }
         
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+fun ReviewItem(label: String, value: String, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = color)
     }
 }
 

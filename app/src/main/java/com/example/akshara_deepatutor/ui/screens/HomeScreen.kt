@@ -117,19 +117,31 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 1. Greeting Section
-                Text(
-                    text = "Hello, Learner! 👋",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D2D2D)
-                )
-                Text(
-                    text = "Ready to learn something new today?",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Hello, Learner! 👋",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2D2D2D)
+                        )
+                        Text(
+                            text = "Ready to learn something new today?",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                    }
+                    
+                    // Daily Goal Mini-Widget
+                    DailyGoalBadge()
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
+
 
                 // 2. Continue Learning Section
                 lastSession?.let { session ->
@@ -162,6 +174,40 @@ fun HomeScreen(
                 
                 Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+    }
+}
+
+@Composable
+fun DailyGoalBadge() {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = BlueTertiary.copy(alpha = 0.4f),
+        modifier = Modifier.size(64.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Icon(
+                Icons.Default.Flag,
+                contentDescription = null,
+                tint = BluePrimary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "Daily",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = BluePrimary
+            )
+            Text(
+                text = "1/1",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = BluePrimary
+            )
         }
     }
 }

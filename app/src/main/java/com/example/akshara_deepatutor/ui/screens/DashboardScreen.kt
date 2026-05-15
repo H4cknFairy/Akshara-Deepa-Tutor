@@ -3,6 +3,7 @@ package com.example.akshara_deepatutor.ui.screens
 import android.app.Application
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -36,15 +37,23 @@ import com.example.akshara_deepatutor.ui.navigation.Screen
 import com.example.akshara_deepatutor.ui.theme.*
 import com.example.akshara_deepatutor.ui.viewmodels.HomeViewModel
 
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import kotlin.math.cos
+import kotlin.math.sin
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     navController: NavHostController,
-    windowWidthSizeClass: WindowWidthSizeClass
+    windowWidthSizeClass: WindowWidthSizeClass,
 ) {
     val context = LocalContext.current
     val viewModel: HomeViewModel = viewModel(
-        factory = HomeViewModel.provideFactory(context.applicationContext as Application)
+        factory = HomeViewModel.provideFactory(context.applicationContext as Application),
     )
 
     val overallProgress by viewModel.overallProgress.collectAsState()
@@ -52,7 +61,7 @@ fun DashboardScreen(
     val weakSubjects by viewModel.weakSubjects.collectAsState()
     val recentQuizzes by viewModel.recentQuizResults.collectAsState()
 
-    var animationPlayed by remember { mutableStateOf(false) }
+    var animationPlayed by remember { mutableStateOf(value = false) }
     
     LaunchedEffect(Unit) {
         animationPlayed = true
@@ -74,7 +83,7 @@ fun DashboardScreen(
                             imageVector = Icons.Default.AutoGraph,
                             contentDescription = null,
                             tint = BluePrimary,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(28.dp),
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("My Progress", fontWeight = FontWeight.Bold)
@@ -84,7 +93,7 @@ fun DashboardScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
                         )
                     }
                 },
@@ -93,14 +102,14 @@ fun DashboardScreen(
                         Icon(Icons.Default.NotificationsNone, contentDescription = "Reminders")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
             )
         },
         bottomBar = {
             if (isCompact) {
                 BottomNavigationBar(navController)
             }
-        }
+        },
     ) { paddingValues ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
@@ -110,7 +119,7 @@ fun DashboardScreen(
                 .background(MaterialTheme.colorScheme.background),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item(span = { GridItemSpan(columns) }) { 
                 Column {
@@ -118,14 +127,19 @@ fun DashboardScreen(
                         text = "Your Learning Journey",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = "Keep pushing your limits! 🚀",
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
+
+            // Radar Mastery Chart
+            item(span = { GridItemSpan(columns) }) {
+                RadarMasteryCard(subjectsProgress)
             }
 
             // Overall Progress Card
@@ -134,9 +148,12 @@ fun DashboardScreen(
                     percentage = overallProgress.progress,
                     completed = overallProgress.completed,
                     total = overallProgress.total,
-                    animate = animationPlayed
+                    animate = animationPlayed,
                 )
             }
+            
+            // ... (rest of the content remains)
+
 
             // Quiz Performance Quick Stats
             item(span = { GridItemSpan(columns) }) {
@@ -418,3 +435,121 @@ data class SubjectProgressData(
     val progress: Float,
     val color: Color
 )
+
+@Composable
+fun RadarMasteryCard(subjects: List<HomeViewModel.SubjectItemData>) {
+    if (subjects.isEmpty()) return
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Subject Mastery Map",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Box(
+                modifier = Modifier
+                    .size(240.dp)
+                    .padding(20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                RadarChart(
+                    data = subjects.map { it.progress },
+                    labels = subjects.map { it.name },
+                    color = BluePrimary
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Visualizing your overall balance across subjects",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun RadarChart(
+    data: List<Float>,
+    labels: List<String>,
+    color: Color
+) {
+    val textMeasurer = rememberTextMeasurer()
+    val labelColor = MaterialTheme.colorScheme.onSurface
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val center = center
+        val radius = size.minDimension / 2
+        val angleStep = 2 * Math.PI / data.size
+
+        // 1. Draw Background Polygons (Web)
+        for (i in 1..4) {
+            val factor = i / 4f
+            val path = androidx.compose.ui.graphics.Path()
+            for (j in data.indices) {
+                val angle = j * angleStep - Math.PI / 2
+                val x = center.x + cos(angle).toFloat() * radius * factor
+                val y = center.y + sin(angle).toFloat() * radius * factor
+                if (j == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+            path.close()
+            drawPath(path, labelColor.copy(alpha = 0.1f), style = Stroke(width = 1.dp.toPx()))
+        }
+
+        // 2. Draw Axis Lines
+        for (j in data.indices) {
+            val angle = j * angleStep - Math.PI / 2
+            val x = center.x + cos(angle).toFloat() * radius
+            val y = center.y + sin(angle).toFloat() * radius
+            drawLine(labelColor.copy(alpha = 0.1f), center, androidx.compose.ui.geometry.Offset(x, y), strokeWidth = 1.dp.toPx())
+            
+            // Draw Labels
+            val labelRadius = radius + 20.dp.toPx()
+            val lx = center.x + cos(angle).toFloat() * labelRadius
+            val ly = center.y + sin(angle).toFloat() * labelRadius
+            
+            val textLayoutResult = textMeasurer.measure(
+                text = labels[j],
+                style = androidx.compose.ui.text.TextStyle(fontSize = 10.sp, fontWeight = FontWeight.Bold, color = labelColor)
+            )
+            
+            drawText(
+                textLayoutResult = textLayoutResult,
+                topLeft = androidx.compose.ui.geometry.Offset(
+                    lx - textLayoutResult.size.width / 2,
+                    ly - textLayoutResult.size.height / 2
+                )
+            )
+        }
+
+        // 3. Draw Data Path (Mastery)
+        val dataPath = androidx.compose.ui.graphics.Path()
+        for (j in data.indices) {
+            val angle = j * angleStep - Math.PI / 2
+            // Ensure at least 10% visibility for 0 progress
+            val value = maxOf(data[j], 0.1f)
+            val x = center.x + cos(angle).toFloat() * radius * value
+            val y = center.y + sin(angle).toFloat() * radius * value
+            if (j == 0) dataPath.moveTo(x, y) else dataPath.lineTo(x, y)
+        }
+        dataPath.close()
+        
+        drawPath(dataPath, color.copy(alpha = 0.3f))
+        drawPath(dataPath, color, style = Stroke(width = 2.dp.toPx()))
+    }
+}
+

@@ -70,6 +70,15 @@ fun QuizScreen(
             delay(1000)
             timeInSeconds--
         }
+        // Auto-finish quiz when time runs out
+        if (timeInSeconds == 0 && questions.isNotEmpty()) {
+            val score = selectedAnswers.indices.count { i -> 
+                selectedAnswers[i] == questions[i].correctAnswer 
+            } * (100 / questions.size)
+            
+            viewModel.finishQuiz(score, chapterId)
+            navController.navigate(Screen.Result.createRoute(score))
+        }
     }
 
     // Progress Logic
