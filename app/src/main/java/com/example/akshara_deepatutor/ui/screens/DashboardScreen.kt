@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -36,6 +37,9 @@ import androidx.navigation.NavHostController
 import com.example.akshara_deepatutor.ui.navigation.Screen
 import com.example.akshara_deepatutor.ui.theme.*
 import com.example.akshara_deepatutor.ui.viewmodels.HomeViewModel
+import com.example.akshara_deepatutor.util.ProgressUtils
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -137,6 +141,18 @@ fun DashboardScreen(
             // Radar Mastery Chart
             item(span = { GridItemSpan(columns) }) {
                 RadarMasteryCard(subjectsProgress)
+            }
+
+            // Quiz Score Trend (New Line Chart)
+            item(span = { GridItemSpan(columns) }) {
+                if (recentQuizzes.size >= 2) {
+                    QuizScoreTrendCard(recentQuizzes.reversed())
+                }
+            }
+
+            // AI Smart Tools Section
+            item(span = { GridItemSpan(columns) }) {
+                AISmartToolsSection(recentQuizzes)
             }
 
             // Overall Progress Card
@@ -547,6 +563,164 @@ fun RadarChart(
         
         drawPath(dataPath, color.copy(alpha = 0.3f))
         drawPath(dataPath, color, style = Stroke(width = 2.dp.toPx()))
+    }
+}
+
+@Composable
+fun AISmartToolsSection(results: List<com.example.akshara_deepatutor.data.QuizResultEntity>) {
+    val readinessScore = if (results.isNotEmpty()) {
+        ProgressUtils.calculateReadinessScore(
+            results.take(5).map { it.percentage },
+            results.first().timestamp
+        )
+    } else 0
+
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(
+            text = "AI Smart Learning ✨",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Readiness Card
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Psychology, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text("Exam Readiness", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("$readinessScore%", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+
+            // OCR Note Scanner Card (Intent/Demo)
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(120.dp)
+                    .clickable { /* Future: Launch Camera for OCR */ },
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.DocumentScanner, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                    Text("Scan Notes (OCR)", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("AI Vision", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun QuizScoreTrendCard(results: List<com.example.akshara_deepatutor.data.QuizResultEntity>) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Quiz Score Trend 📈",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .padding(horizontal = 10.dp)
+            ) {
+                LineChart(
+                    data = results.takeLast(7).map { it.percentage.toFloat() / 100f },
+                    color = Color(0xFF6A11CB)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Tracking your performance over the last 7 quizzes",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun LineChart(data: List<Float>, color: Color) {
+    val strokeColor = color
+    val fillColor = color.copy(alpha = 0.2f)
+    val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val width = size.width
+        val height = size.height
+        val spacing = width / (data.size - 1).coerceAtLeast(1)
+
+        // Draw Grid Lines
+        for (i in 0..4) {
+            val y = height - (i * height / 4)
+            drawLine(gridColor, androidx.compose.ui.geometry.Offset(0f, y), androidx.compose.ui.geometry.Offset(width, y), strokeWidth = 1.dp.toPx())
+        }
+
+        if (data.size < 2) return@Canvas
+
+        val points = data.mapIndexed { index, value ->
+            androidx.compose.ui.geometry.Offset(index * spacing, height - (value * height))
+        }
+
+        // Draw Path
+        val path = androidx.compose.ui.graphics.Path().apply {
+            moveTo(points.first().x, points.first().y)
+            for (i in 1 until points.size) {
+                lineTo(points[i].x, points[i].y)
+            }
+        }
+
+        // Draw Area Fill
+        val fillPath = androidx.compose.ui.graphics.Path().apply {
+            addPath(path)
+            lineTo(points.last().x, height)
+            lineTo(points.first().x, height)
+            close()
+        }
+        drawPath(fillPath, brush = Brush.verticalGradient(listOf(fillColor, Color.Transparent)))
+
+        // Draw Line
+        drawPath(path, strokeColor, style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+
+        // Draw Points
+        points.forEach { point ->
+            drawCircle(Color.White, radius = 4.dp.toPx(), center = point)
+            drawCircle(strokeColor, radius = 4.dp.toPx(), center = point, style = Stroke(width = 2.dp.toPx()))
+        }
     }
 }
 

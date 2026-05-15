@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.mlkit.text.recognition)
 
     // Room
     implementation(libs.androidx.room.runtime)

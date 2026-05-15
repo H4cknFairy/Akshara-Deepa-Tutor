@@ -9,7 +9,9 @@
 
 ## 🌟 Key Highlights
 
-- **Advanced Analytics**: Visualizes student performance using custom **Radar Charts** to show subject mastery.
+- **AI-Powered Readiness**: Calculates a **Predictive Readiness Score** using a weighted average and forgetting curve decay algorithm.
+- **Smart Note Scanner**: Integrated **Google ML Kit (OCR)** to digitize physical notes and study materials.
+- **Advanced Analytics**: Visualizes student performance using custom **Radar Charts** and **Trend Lines**.
 - **Intelligent Tracking**: Automatically detects **Weak Subjects** based on quiz performance (avg < 60%).
 - **Interactive Quizzes**: Features a **Timed Quiz Mode** to simulate real exam environments.
 - **Gamified Progress**: Earn unique **Achievements** (e.g., "First Steps", "Subject Whiz") as you learn.
@@ -37,6 +39,8 @@
 - **Local Storage**: [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) for user preferences.
 - **Dependency Management**: [Gradle Version Catalog](https://developer.android.com/build/migrate-to-catalogs) (`libs.versions.toml`).
 - **Navigation**: Type-safe Compose Navigation.
+- **On-Device AI**: [Google ML Kit](https://developers.google.com/ml-kit) for Text Recognition (OCR).
+- **Analytics**: Predictive Modeling for student exam readiness.
 
 ---
 
@@ -55,6 +59,7 @@ app/src/main/java/com/example/akshara_deepatutor/
 │   ├── theme/            # Theme, Color, and Type definitions
 │   └── viewmodels/       # UI State management logic
 └── MainActivity.kt       # App Entry Point & Theme Handling
+└── util/                 # AI Utils: SmartScanner (OCR), ProgressUtils (Predictive)
 ```
 
 ---
@@ -74,7 +79,8 @@ app/src/main/java/com/example/akshara_deepatutor/
 ## 📝 Implementation Effort (Originality)
 
 This project goes beyond basic CRUD operations by implementing:
-- **Custom Graphics**: A hand-coded `RadarChart` using Compose `Canvas` to visualize performance.
+- **On-Device AI**: Integration of ML Kit for OCR and a custom predictive algorithm for student performance analytics.
+- **Custom Graphics**: Hand-coded `RadarChart` and `LineChart` using Compose `Canvas`.
 - **Business Logic**: Complex `Flow` transformations in ViewModels to calculate real-time progress across multiple tables.
 - **User Experience**: Smooth transitions, timed interactions, and personalized feedback systems.
 

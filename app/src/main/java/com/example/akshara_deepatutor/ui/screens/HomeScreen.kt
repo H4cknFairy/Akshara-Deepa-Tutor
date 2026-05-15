@@ -50,6 +50,9 @@ fun HomeScreen(
     )
     val lastSession by viewModel.lastLearningSession.collectAsState()
     
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
     val isCompact = windowWidthSizeClass == WindowWidthSizeClass.Compact
     
     Scaffold(
@@ -95,16 +98,23 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.White, Color(0xFFF0F7FF))
-                    )
-                )
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(
+                initialOffsetY = { 100 },
+                animationSpec = tween(800, easing = LinearOutSlowInEasing)
+            )
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.White, Color(0xFFF0F7FF))
+                        )
+                    )
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -172,6 +182,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+      }
     }
 }
 
